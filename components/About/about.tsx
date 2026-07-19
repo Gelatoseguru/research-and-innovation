@@ -38,7 +38,7 @@ export default function About() {
   const [activeTab, setActiveTab] = useState(0);
 
   return (
-    <section id="about" className="pt-60 pb-60 border-t border-[#010100]/10 bg-[#E3E1E0] w-full overflow-hidden">
+    <section id="about" className="pt-50 pb-40 border-t border-[#010100]/10 bg-[#E3E1E0] w-full overflow-hidden">
       
       {/* We use grid-cols-12 across the full width window.
         The layout uses padding left calculation to keep your left text perfectly aligned with 

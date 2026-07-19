@@ -11,6 +11,7 @@ import Footer from "@/components/Footer/footer";
 import Preloader from "@/components/Load/Preloader";
 import Program from "@/components/Program/program";
 
+
 // ---- LNU palette (from palette.txt) -----------------------------------
 // Alabaster Grey  #E3E1E0  -> page background
 // Dim Grey        #6B6B6B  -> secondary text, borders, ring text
@@ -40,7 +41,6 @@ export default function Home() {
         <Navbar />
         <Hero />
         <About />
-        <Program />
         <Publications />
         <Footer />
 

@@ -35,31 +35,14 @@ const ARCHIVE_DATA = [
 export default function ProgramsPage() {
   return (
     // Outer scroll container that allows a smooth scroll experience over your own bottom footer
-    <div className="relative min-h-screen bg-[#D5D5D5] font-mono text-neutral-800 antialiased selection:bg-neutral-800 selection:text-white">
+    <div className="relative min-h-screen bg-[#E3E1E0] font-mono text-neutral-800 antialiased selection:bg-neutral-800 selection:text-white">
       
       {/* 
         MAIN CONTENT PANEL CONTAINER
         - mb-[50vh] ensures there is enough scrolling headroom for your footer layout to reveal itself.
         - z-10 keeps it stacked neatly over standard fixed or background layers.
       */}
-      <div className="relative z-10 w-full bg-[#D5D5D5] pb-24 shadow-2xl">
-        
-        {/* Navigation / Header Line */}
-        <nav className="max-w-7xl mx-auto px-8 pt-8 flex justify-between items-center text-[11px] tracking-widest text-neutral-600">
-          <div className="flex gap-12">
-            <a href="#home" className="hover:text-black transition-colors">HOME</a>
-            <a href="#works" className="hover:text-black transition-colors text-black font-bold">WORKS</a>
-            <a href="#about" className="hover:text-black transition-colors">ABOUT</a>
-            <a href="#contact" className="hover:text-black transition-colors">CONTACT</a>
-          </div>
-        </nav>
-
-        {/* Action Link Row */}
-        <div className="max-w-7xl mx-auto px-8 mt-12">
-          <a href="#all" className="inline-flex items-center gap-2 text-[11px] tracking-widest text-neutral-600 hover:text-black transition-colors">
-            ← SEE ALL WORKS
-          </a>
-        </div>
+      <div className="relative z-10 w-full bg-[#E3E1E0] pb-24 shadow-2xl">
 
         {/* Main Split Layout Grid */}
         <main className="max-w-7xl mx-auto px-8 mt-16 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -87,7 +70,7 @@ export default function ProgramsPage() {
             {/* Core Box Title */}
             <div className="pt-10 px-8 pb-8">
               <h1 className="text-5xl font-serif text-neutral-900 tracking-tight font-normal">
-                3D Tech
+                Programs
               </h1>
             </div>
 
