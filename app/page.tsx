@@ -14,7 +14,7 @@ import Preloader from "@/components/Load/Preloader";
 // ---- LNU palette (from palette.txt) -----------------------------------
 // Alabaster Grey  #E3E1E0  -> page background
 // Dim Grey        #6B6B6B  -> secondary text, borders, ring text
-// Black           #010100  -> primary text
+// Black           #292928  -> primary text
 // Dark Amaranth   #922842  -> primary accent (maroon)
 // Dark Amaranth 2 #791B37  -> deep accent / dark sections
 

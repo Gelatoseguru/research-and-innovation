@@ -42,7 +42,7 @@ export default function ResearchListPage() {
   }, [query, program, status]);
 
   async function handleDelete(s: Study) {
-    if (!confirm(`Delete "${s.title}"? This can't be undone.`)) return;
+    if (!confirm(`Archive "${s.title}"? You can still view it in the archived records.`)) return;
     await deleteStudy(s.id);
     await addActivityLog({
       actor: admin?.name ?? "Unknown admin",

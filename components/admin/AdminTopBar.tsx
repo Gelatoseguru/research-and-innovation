@@ -30,18 +30,6 @@ export default function AdminTopBar({
           {title}
         </h1>
       </div>
-
-      <div className="flex items-center gap-2.5">
-        <button
-          onClick={() => {
-            // Optional: Add profile navigation or dropdown logic here, e.g., router.push('/admin/settings')
-          }}
-          aria-label="Admin Profile"
-          className="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200/80 bg-white/80 text-gray-600 shadow-sm backdrop-blur-md transition-all hover:bg-white hover:text-gray-900 cursor-pointer"
-        >
-          <User size={16} />
-        </button>
-      </div>
     </div>
   );
 }

@@ -1,13 +1,9 @@
 // Shared types for the Research Archiving System admin dashboard.
-// Keeping these in one place means the mock services and every page/
-// component agree on the same shape, and swapping mock data for real
-// MongoDB documents later only touches the service files, not the UI.
+// The PHP/MySQL API and the existing screens share this shape so the UI
+// stays independent from database column names.
 
 export type Role = "admin";
 
-// Roles for the *public* site (referenced here for RBAC planning, not
-// enforced yet since the public site itself isn't being modified in
-// this pass — see README for how this plugs in later).
 export type PublicRole = "guest" | "student";
 
 export type PublicationStatus = "draft" | "published" | "archived";
@@ -18,6 +14,7 @@ export type ActivityAction =
   | "approved"
   | "rejected"
   | "deleted"
+  | "archived"
   | "published";
 
 export interface Study {
@@ -30,7 +27,9 @@ export interface Study {
   abstract: string;
   keywords: string[];
   pdfName: string | null;
+  pdfUrl?: string | null;
   coverImageName: string | null;
+  coverImageUrl?: string | null;
   status: PublicationStatus;
   uploadedBy: string;
   createdAt: string;

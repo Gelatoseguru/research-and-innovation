@@ -45,7 +45,7 @@ export default function AdminDashboardPage() {
   return (
     <div className="font-fraunces text-[#6B6B6B] space-y-6 pb-12">
       <div className="px-6">
-        <AdminTopBar title="Dashboard" />
+        <AdminTopBar title="" />
       </div>
       {/* Hero Spotlight Panel — Light Glassmorphism Card matching the reference structure */}
       <div className="relative overflow-hidden rounded-[2.5rem] border border-white/80 bg-gradient-to-br from-white/80 via-white/40 to-gray-100/50 p-8 shadow-xl shadow-gray-200/50 backdrop-blur-2xl">

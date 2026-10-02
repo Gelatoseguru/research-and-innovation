@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { UploadCloud, Image as ImageIcon, Check } from "lucide-react";
+import { UploadCloud, Check } from "lucide-react";
 import AdminTopBar from "@/components/admin/AdminTopBar";
 import TagInput from "@/components/admin/TagInput";
 import { useAdminAuth } from "@/lib/admin/auth-context";
@@ -14,8 +14,8 @@ import {
 import { addActivityLog } from "@/lib/admin/activity-service";
 import type { PublicationStatus } from "@/lib/admin/types";
 
-const PROGRAMS = ["PhD in Education", "MAEd", "MAN"];
-const COLLEGES = ["College of Education", "College of Nursing", "College of Business"];
+const PROGRAMS = ["PhD", "MAEd", "MAN"];
+const COLLEGES = ["College of Education", "College of Nursing", "College of Medicine"];
 
 function UploadResearchForm() {
   const router = useRouter();
@@ -32,10 +32,11 @@ function UploadResearchForm() {
   const [abstract, setAbstract] = useState("");
   const [keywords, setKeywords] = useState<string[]>([]);
   const [pdfName, setPdfName] = useState<string | null>(null);
-  const [coverImageName, setCoverImageName] = useState<string | null>(null);
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [status, setStatus] = useState<PublicationStatus>("draft");
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!editId) return;
@@ -52,7 +53,6 @@ function UploadResearchForm() {
       setAbstract(s.abstract);
       setKeywords(s.keywords);
       setPdfName(s.pdfName);
-      setCoverImageName(s.coverImageName);
       setStatus(s.status);
       setLoadingExisting(false);
     });
@@ -61,6 +61,7 @@ function UploadResearchForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
+    setSubmitError(null);
 
     const payload = {
       title,
@@ -71,30 +72,34 @@ function UploadResearchForm() {
       abstract,
       keywords,
       pdfName,
-      coverImageName,
       status,
       uploadedBy: admin?.name ?? "Unknown admin",
+      pdfFile,
     };
 
-    if (editId) {
-      await updateStudy(editId, payload);
-      await addActivityLog({
-        actor: admin?.name ?? "Unknown admin",
-        action: "edited",
-        target: title,
-      });
-    } else {
-      await createStudy(payload);
-      await addActivityLog({
-        actor: admin?.name ?? "Unknown admin",
-        action: status === "published" ? "published" : "uploaded",
-        target: title,
-      });
+    try {
+      if (editId) {
+        await updateStudy(editId, payload);
+        await addActivityLog({
+          actor: admin?.name ?? "Unknown admin",
+          action: "edited",
+          target: title,
+        });
+      } else {
+        await createStudy(payload);
+        await addActivityLog({
+          actor: admin?.name ?? "Unknown admin",
+          action: status === "published" ? "published" : "uploaded",
+          target: title,
+        });
+      }
+      setSubmitted(true);
+      setTimeout(() => router.push("/admin/research"), 900);
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "Unable to save the study.");
+    } finally {
+      setSubmitting(false);
     }
-
-    setSubmitting(false);
-    setSubmitted(true);
-    setTimeout(() => router.push("/admin/research"), 900);
   }
 
   if (loadingExisting) {
@@ -116,6 +121,11 @@ function UploadResearchForm() {
         {submitted && (
           <div className="mb-6 flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50/80 px-4 py-3 text-sm font-medium text-emerald-800 backdrop-blur-md">
             <Check size={16} /> {editId ? "Study updated successfully." : "Study submitted successfully."}
+          </div>
+        )}
+        {submitError && (
+          <div className="mb-5 rounded-lg bg-[#f3dde3] px-4 py-3 text-sm text-[#791B37]">
+            {submitError}
           </div>
         )}
 
@@ -242,7 +252,7 @@ function UploadResearchForm() {
                 <label className="mb-1.5 block font-[family-name:var(--font-mono)] text-xs uppercase tracking-[0.2em] text-gray-500">
                   Research PDF
                 </label>
-                <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-gray-300 bg-white/40 p-5 text-sm text-gray-600 transition-all hover:bg-white/60 hover:border-gray-400 backdrop-blur-md">
+                <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-gray-300 bg-white/40 py-12 px-6 text-sm text-gray-600 transition-all hover:bg-white/60 hover:border-gray-400 backdrop-blur-md">
                   <UploadCloud size={20} className="text-gray-500" />
                   <span className="font-medium text-gray-800 text-center truncate max-w-xs">{pdfName ? pdfName : "Click to select a PDF file"}</span>
                   <input
@@ -250,23 +260,11 @@ function UploadResearchForm() {
                     accept="application/pdf"
                     className="hidden"
                     required={!editId}
-                    onChange={(e) => setPdfName(e.target.files?.[0]?.name ?? null)}
-                  />
-                </label>
-              </div>
-
-              <div>
-                <label className="mb-1.5 block font-[family-name:var(--font-mono)] text-xs uppercase tracking-[0.2em] text-gray-500">
-                  Cover image <span className="normal-case text-gray-400">(optional)</span>
-                </label>
-                <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-gray-300 bg-white/40 p-5 text-sm text-gray-600 transition-all hover:bg-white/60 hover:border-gray-400 backdrop-blur-md">
-                  <ImageIcon size={18} className="text-gray-500" />
-                  <span className="font-medium text-gray-800 text-center truncate max-w-xs">{coverImageName ? coverImageName : "Click to select an image"}</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => setCoverImageName(e.target.files?.[0]?.name ?? null)}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] ?? null;
+                      setPdfFile(file);
+                      setPdfName(file?.name ?? null);
+                    }}
                   />
                 </label>
               </div>

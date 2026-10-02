@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Mail, Phone, MapPin, Globe } from "lucide-react";
 import { fraunces, mono, inter } from "@/components/fonts";
 
@@ -44,35 +45,35 @@ export default function Footer() {
               </div>
             </div>
 
-            {/* RIGHT FRAME: NAVIGATION LINKS GRID (Spans remaining 9 cols out of 12) */}
-            <div className="md:col-span-9 grid grid-cols-1 sm:grid-cols-3 gap-8 text-left w-full md:justify-items-end">
+            {/* RIGHT FRAME: NAVIGATION LINKS (Spans remaining 9 cols out of 12, aligned right) */}
+            <div className="md:col-span-9 flex flex-col sm:flex-row justify-end gap-10 sm:gap-16 text-left w-full">
               
-              {/* COLUMN 1: ABOUT */}
-              <div className="flex flex-col w-full sm:max-w-[200px]">
+              {/* COLUMN 1: EDUCATION / NAVIGATION */}
+              <div className="flex flex-col w-full sm:w-[200px]">
                 <p className="font-[family-name:var(--font-mono)] text-xs font-semibold uppercase tracking-[0.2em] text-[#010100] pb-3 border-b border-[#010100]/10">
-                  About
+                  EDUCATION
                 </p>
                 <ul className="font-[family-name:var(--font-fraunces)] mt-5 space-y-3 text-sm text-[#57564F]">
-                  <li><a href="#publications" className="hover:text-[#922842] transition-colors duration-200">Publications</a></li>
-                  <li><a href="#authors" className="hover:text-[#922842] transition-colors duration-200">Authors</a></li>
-                  <li><a href="#programs" className="hover:text-[#922842] transition-colors duration-200">Programs</a></li>
+                  <li>
+                    <Link href="/" className="hover:text-[#922842] transition-colors duration-200">
+                      About
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/Publications" className="hover:text-[#922842] transition-colors duration-200">
+                      Publications
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/Programs" className="hover:text-[#922842] transition-colors duration-200">
+                      Programs
+                    </Link>
+                  </li>
                 </ul>
               </div>
 
-              {/* COLUMN 2: EDUCATION */}
-              <div className="flex flex-col w-full sm:max-w-[200px]">
-                <p className="font-[family-name:var(--font-mono)] text-xs font-semibold uppercase tracking-[0.2em] text-[#010100] pb-3 border-b border-[#010100]/10">
-                  Education
-                </p>
-                <ul className="font-[family-name:var(--font-fraunces)] mt-5 space-y-3 text-sm text-[#57564F]">
-                  <li><a href="#about" className="hover:text-[#922842] transition-colors duration-200">About</a></li>
-                  <li><a href="#services" className="hover:text-[#922842] transition-colors duration-200">Services</a></li>
-                  <li><a href="#goals" className="hover:text-[#922842] transition-colors duration-200">Goals</a></li>
-                </ul>
-              </div>
-
-              {/* COLUMN 3: CONTACT LINKS */}
-              <div className="flex flex-col w-full sm:max-w-[240px]">
+              {/* COLUMN 2: CONTACT LINKS */}
+              <div className="flex flex-col w-full sm:w-[240px]">
                 <p className="font-[family-name:var(--font-mono)] text-xs font-semibold uppercase tracking-[0.2em] text-[#010100] pb-3 border-b border-[#010100]/10">
                   Contact
                 </p>

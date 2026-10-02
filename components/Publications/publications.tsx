@@ -1,11 +1,39 @@
 ﻿"use client";
 
+import { useEffect, useState } from "react";
 import { ArrowUpRight, FileText } from "lucide-react";
 import Link from "next/link";
 import { fraunces, mono, inter } from "@/components/fonts";
 import { publications } from "@/components/Publications/publications-data";
+import { backendFetch } from "@/lib/backend";
+
+type PublicationCard = (typeof publications)[number];
 
 export default function Publications() {
+  const [recentPublications, setRecentPublications] = useState<PublicationCard[]>(publications);
+
+  useEffect(() => {
+    backendFetch("studies?recent=1", { cache: "no-store" })
+      .then((response) => response.json())
+      .then((body) => {
+        if (!Array.isArray(body.studies)) return;
+        setRecentPublications(body.studies.map((study: {
+          id: string;
+          title: string;
+          program: string;
+          year: string;
+          authors: string[];
+        }) => ({
+          id: study.id,
+          title: study.title,
+          program: study.program,
+          year: study.year,
+          author: study.authors.join(", "),
+        })));
+      })
+      .catch(() => undefined);
+  }, []);
+
   return (
     <section
       id="publications"
@@ -42,7 +70,7 @@ export default function Publications() {
           Perfect layout configuration for displaying 6 distinct research item boxes evenly.
         */}
         <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {publications.slice(0, 6).map((publication) => (
+          {recentPublications.slice(0, 6).map((publication) => (
             <div
               key={publication.id}
               className="relative rounded-xl border border-[#010100]/10 bg-white p-6 shadow-sm flex flex-col justify-between"
@@ -67,7 +95,7 @@ export default function Publications() {
               </div>
 
               <div className="pl-6">
-                <Link href="/view" className="mt-4 flex items-center gap-1 border-t border-dashed border-[#010100]/10 pt-4 text-sm text-[#922842] cursor-pointer hover:opacity-80 transition-opacity">
+                <Link href={`/view?id=${publication.id}`} className="mt-4 flex items-center gap-1 border-t border-dashed border-[#010100]/10 pt-4 text-sm text-[#922842] cursor-pointer hover:opacity-80 transition-opacity">
                   <FileText size={14} />
                   View Abstract
                 </Link>

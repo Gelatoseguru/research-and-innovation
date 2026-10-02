@@ -1,73 +1,90 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Filter, Eye, ChevronDown, Search } from "lucide-react";
+import { backendFetch } from "@/lib/backend";
 
-// Mock research data
-const researchData = [
-  {
-    id: 1,
-    title: "Digital Archives and Institutional Memory Preservation",
-    author: "Victor Magtanggol",
-    program: "Information Technology",
-    year: "2026",
-  },
-  {
-    id: 2,
-    title: "Pedagogical Strategies in Post-Pandemic Higher Education",
-    author: "Lilith Dalisay",
-    program: "MAN",
-    year: "2025",
-  },
-  {
-    id: 3,
-    title: "Language Evolution and Regional Dialects in Leyte",
-    author: "Lara Plato",
-    program: "MAEd",
-    year: "2026",
-  },
-  {
-    id: 4,
-    title: "Automated Thesis Repository and Retrieval System",
-    author: "Josh Baterbonians",
-    program: "MAN",
-    year: "2025",
-  },
-  {
-    id: 5,
-    title: "Community Engagement Frameworks for Local Governance",
-    author: "Elena Gomez",
-    program: "PhD",
-    year: "2025",
-  },
-];
+type StudyRow = {
+  id: string; // MongoDB ObjectId string — never convert to Number
+  title: string;
+  author: string;
+  program: string;
+  year: string;
+  views: string;
+  citations: string;
+};
 
-const programsList = [
-  "All Programs",
-  "Information Technology",
-  "MAN",
-  "MAEd",
-  "PhD",
-];
+type StudyApi = {
+  id: string;
+  title: string;
+  authors: string[];
+  program: string;
+  year: string;
+  views?: number;
+};
+
+const ALL_PROGRAMS = "All Programs";
 
 export default function ProgramsPage() {
-  const [selectedProgram, setSelectedProgram] = useState("All Programs");
+  const [selectedProgram, setSelectedProgram] = useState(ALL_PROGRAMS);
   const [searchQuery, setSearchQuery] = useState("");
+  const [researchData, setResearchData] = useState<StudyRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    backendFetch("studies", { cache: "no-store" })
+      .then(async (response) => {
+        const body = await response.json();
+        if (!response.ok) throw new Error(body.error ?? "Unable to load studies.");
+        return body;
+      })
+      .then((body) => {
+        if (cancelled) return;
+        const studies: StudyApi[] = Array.isArray(body.studies) ? body.studies : [];
+        setResearchData(
+          studies.map((study) => ({
+            id: study.id,
+            title: study.title,
+            author: (study.authors ?? []).join(", "),
+            program: study.program,
+            year: study.year,
+            views: `${study.views ?? 0} views`,
+            citations: "0 citations",
+          })),
+        );
+      })
+      .catch((err: unknown) => {
+        if (!cancelled) setError(err instanceof Error ? err.message : "Unable to load studies.");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Program filter options come from the studies in the database.
+  const availablePrograms = useMemo(() => {
+    const programs = new Set(researchData.map((item) => item.program).filter(Boolean));
+    return [ALL_PROGRAMS, ...Array.from(programs).sort()];
+  }, [researchData]);
 
   const filteredResearch = researchData.filter((item) => {
-    const matchesProgram =
-      selectedProgram === "All Programs" || item.program === selectedProgram;
-    const matchesSearch =
-      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.author.toLowerCase().includes(searchQuery.toLowerCase());
+    const q = searchQuery.toLowerCase();
+    const matchesProgram = selectedProgram === ALL_PROGRAMS || item.program === selectedProgram;
+    const matchesSearch = item.title.toLowerCase().includes(q) || item.author.toLowerCase().includes(q);
     return matchesProgram && matchesSearch;
   });
 
   return (
     <div className="relative min-h-screen w-full font-sans text-zinc-900 selection:bg-[#922842] selection:text-white">
-      
       {/* Background Image with Light Overlay */}
       <div className="fixed inset-0 z-0">
         <Image
@@ -80,138 +97,126 @@ export default function ProgramsPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-zinc-100/70 to-[#922842]/10" />
       </div>
 
-      {/* Main Content Aligned to Navbar Width Container */}
-      <main className="relative z-10 max-w-7xl mx-auto px-6 pt-28 sm:pt-36 pb-16">
-        
+      <main className="relative z-10 w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-12 pt-28 sm:pt-36 pb-16">
         {/* Top Page Title Section */}
         <div className="mb-12 border-b border-zinc-400/50 pb-8 flex flex-col sm:flex-row sm:items-baseline justify-between gap-4">
           <h1 className="text-5xl sm:text-7xl font-light tracking-tight font-[family-name:var(--font-fraunces)] text-zinc-900">
             Research <span className="text-[#922842] font-normal">Lists</span>
           </h1>
-          <p className="text-xs uppercase tracking-widest text-zinc-600 font-[family-name:var(--font-mono)]">
-            &bull; Index &bull; 
+          <p className="text-sm uppercase tracking-widest text-zinc-600 font-[family-name:var(--font-mono)]">
+            &bull; Index &bull;
           </p>
         </div>
 
-        {/* Glassmorphism Wrapper for the Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 rounded-3xl overflow-hidden border border-zinc-200/80 bg-white/60 backdrop-blur-2xl shadow-2xl shadow-zinc-300/50">
-          
-          {/* Left Sidebar Space */}
-          <div className="lg:col-span-4 p-6 sm:p-8 border-b lg:border-b-0 lg:border-r border-[#6B6B6B] border-dashed flex flex-col justify-between bg-[#E3E1E0]">
-            <div>
-              {/* Sidebar Header Indicator */}
-              <div className="flex items-center justify-between text-[10px] uppercase tracking-widest text-zinc-500 font-[family-name:var(--font-mono)] pb-4 border-b border-zinc-200/80 mb-6">
-                <span>Filters</span>
-                <span>Options</span>
+        <div className="rounded-3xl overflow-hidden border border-zinc-200/80 bg-white/65 backdrop-blur-2xl shadow-2xl shadow-zinc-300/50">
+          {/* Top Filter & Search Bar */}
+          <div className="p-6 sm:p-10 border-b border-zinc-200/80 bg-white/40 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-6">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-6 flex-1">
+              {/* Search Input */}
+              <div className="relative flex-1">
+                <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-400">
+                  <Search size={18} />
+                </span>
+                <input
+                  type="text"
+                  placeholder="Search by title or author..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-11 pr-5 py-3.5 bg-white/90 border border-zinc-300/80 rounded-2xl text-sm text-zinc-900 placeholder:text-zinc-500 focus:outline-none focus:border-[#922842] transition-colors shadow-[#922842] shadow-sm"
+                />
               </div>
 
-              <div className="space-y-6">
-                {/* Search Filter */}
-                <div>
-                  <label className="block text-xs uppercase tracking-wider font-semibold text-zinc-700 mb-2 font-[family-name:var(--font-mono)]">
-                    Search Research
-                  </label>
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
-                      <Search size={14} />
-                    </span>
-                    <input
-                      type="text"
-                      placeholder="Title or author..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2.5 bg-white/70 border border-zinc-300/80 rounded-lg text-xs text-zinc-900 placeholder:text-zinc-500 focus:outline-none focus:border-[#922842] transition-colors"
-                    />
-                  </div>
-                </div>
-
-                {/* Program Dropdown Filter */}
-                <div>
-                  <label className="block text-xs uppercase tracking-wider font-semibold text-zinc-700 mb-2 font-[family-name:var(--font-mono)]">
-                    Filter by Program
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={selectedProgram}
-                      onChange={(e) => setSelectedProgram(e.target.value)}
-                      className="w-full appearance-none bg-white/70 border border-zinc-300/80 rounded-lg px-3 py-2.5 text-xs text-zinc-900 focus:outline-none focus:border-[#922842] transition-colors pr-8 cursor-pointer font-[family-name:var(--font-mono)]"
-                    >
-                      {programsList.map((prog) => (
-                        <option key={prog} value={prog}>
-                          {prog}
-                        </option>
-                      ))}
-                    </select>
-                    <span className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-zinc-400">
-                      <ChevronDown size={14} />
-                    </span>
-                  </div>
-                </div>
+              {/* Program Dropdown Filter */}
+              <div className="relative sm:w-72">
+                <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-400">
+                  <Filter size={16} />
+                </span>
+                <select
+                  value={selectedProgram}
+                  onChange={(e) => setSelectedProgram(e.target.value)}
+                  className="w-full appearance-none bg-white/90 border border-zinc-300/80 rounded-2xl pl-10 pr-10 py-3.5 text-sm text-zinc-900 focus:outline-none focus:border-[#922842] transition-colors cursor-pointer font-[family-name:var(--font-mono)] shadow-sm"
+                >
+                  {availablePrograms.map((prog) => (
+                    <option key={prog} value={prog}>
+                      {prog}
+                    </option>
+                  ))}
+                </select>
+                <span className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-zinc-400">
+                  <ChevronDown size={16} />
+                </span>
               </div>
-            </div>
-
-            <div className="mt-12 text-[11px] text-zinc-500 font-[family-name:var(--font-mono)]">
-              Showing {filteredResearch.length} results
             </div>
           </div>
 
-          {/* Right Main Content (Research List Table) */}
-          <div className="lg:col-span-8 p-6 sm:p-8">
-            <div className="mb-6">
-              <h2 className="text-3xl font-light tracking-tight text-zinc-900 font-[family-name:var(--font-fraunces)]">
-                Research List
-              </h2>
-            </div>
-
-            {/* Table Container */}
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-zinc-300/80 text-[11px] font-[family-name:var(--font-mono)] text-zinc-500 uppercase tracking-wider">
-                    <th className="py-3 px-2 font-medium">Title</th>
-                    <th className="py-3 px-2 font-medium">Author</th>
-                    <th className="py-3 px-2 font-medium">Program</th>
-                    <th className="py-3 px-2 font-medium text-right">Actions</th>
+          {/* Table */}
+          <div className="p-6 sm:p-10 overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-zinc-300/80 text-xs font-[family-name:var(--font-mono)] text-zinc-500 uppercase tracking-wider">
+                  <th className="py-4 px-4 font-semibold">Title</th>
+                  <th className="py-4 px-4 font-semibold">Program</th>
+                  <th className="py-4 px-4 font-semibold">Year</th>
+                  <th className="py-4 px-4 font-semibold text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-dashed divide-zinc-200/80 text-sm font-[family-name:var(--font-mono)]">
+                {loading ? (
+                  <tr>
+                    <td colSpan={4} className="py-16 text-center text-zinc-500 font-sans text-base">
+                      Loading research documents…
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-dashed divide-zinc-200/80 text-xs font-[family-name:var(--font-mono)]">
-                  {filteredResearch.length > 0 ? (
-                    filteredResearch.map((item) => (
-                      <tr key={item.id} className="hover:bg-zinc-50/50 transition-colors">
-                        <td className="py-4 px-2 text-zinc-900 font-medium font-sans">
+                ) : error ? (
+                  <tr>
+                    <td colSpan={4} className="py-16 text-center text-[#791B37] font-sans text-base">
+                      {error}
+                    </td>
+                  </tr>
+                ) : filteredResearch.length > 0 ? (
+                  filteredResearch.map((item) => (
+                    <tr key={item.id} className="hover:bg-white/60 transition-colors group">
+                      <td className="py-5 px-4">
+                        <div className="font-medium text-zinc-900 font-sans text-lg mb-1.5 group-hover:text-[#922842] transition-colors">
                           {item.title}
-                        </td>
-                        <td className="py-4 px-2 text-zinc-700">
-                          {item.author}
-                        </td>
-                        <td className="py-4 px-2 text-zinc-700">
-                          <span className="inline-block px-2 py-0.5 rounded bg-zinc-100/80 border border-zinc-200 text-[10px] text-zinc-800">
-                            {item.program}
+                        </div>
+                        <div className="flex items-center gap-3.5 text-zinc-500 text-xs">
+                          <span>
+                            By <strong className="text-zinc-700 font-medium">{item.author}</strong>
                           </span>
-                        </td>
-                        <td className="py-4 px-2 text-right">
-                          <Link
-                            href="/view"
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#922842]/10 hover:bg-[#922842] text-[#922842] hover:text-white transition-all text-xs font-medium"
-                          >
-                            <Eye size={13} />
-                            <span>View</span>
-                          </Link>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={4} className="py-8 text-center text-zinc-500 font-sans">
-                        No research documents found matching your filter criteria.
+                          <span>&bull;</span>
+                          <span className="text-zinc-600">{item.views}</span>
+                          <span>&bull;</span>
+                          <span className="text-zinc-600">{item.citations}</span>
+                        </div>
+                      </td>
+                      <td className="py-5 px-4 text-zinc-700 align-middle">
+                        <span className="inline-block px-3 py-1.5 rounded-lg bg-zinc-100/90 border border-zinc-200 text-xs text-zinc-800 font-medium">
+                          {item.program}
+                        </span>
+                      </td>
+                      <td className="py-5 px-4 text-zinc-600 align-middle text-sm">{item.year}</td>
+                      <td className="py-5 px-4 text-right align-middle">
+                        <Link
+                          href={`/view?id=${encodeURIComponent(item.id)}`}
+                          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#922842]/10 hover:bg-[#922842] text-[#922842] hover:text-white transition-all text-sm font-medium shadow-sm"
+                        >
+                          <Eye size={16} />
+                          <span>View</span>
+                        </Link>
                       </td>
                     </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={4} className="py-16 text-center text-zinc-500 font-sans text-base">
+                      No research documents found matching your filter criteria.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
-
         </div>
       </main>
     </div>

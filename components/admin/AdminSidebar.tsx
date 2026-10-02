@@ -41,7 +41,7 @@ export default function AdminSidebar() {
         <span className="flex h-11 w-11 items-center justify-center ">
           <Image src="/SHOE.png" alt="LNU seal" width={32} height={32} className="h-13 w-12 object-contain" />
         </span>
-        <span className="font-[family-name:var(--font-fraunces)] text-sm font-bold uppercase tracking-wide text-[#6B6B6B]">
+        <span className="font-[family-name:var(--font-fraunces)] text-sm font-bold uppercase tracking-wide text-[#922842]">
           LNU Archives
         </span>
       </Link>
@@ -56,27 +56,27 @@ export default function AdminSidebar() {
               href={item.href}
               className={`flex items-center gap-3 rounded-2xl px-3.5 py-3 text-xs font-[family-name:var(--font-mono)] uppercase tracking-wider font-medium transition-all backdrop-blur-md ${
                 isActive
-                  ? "border border-gray-200/80 bg-white/90 text-gray-900 shadow-sm"
+                  ? "border border-[#922842]/30 bg-[#922842]/10 text-[#922842] shadow-sm font-semibold"
                   : "border border-transparent text-gray-600 hover:bg-white/50 hover:text-gray-900"
               }`}
             >
-              <Icon size={16} className={isActive ? "text-gray-900" : "text-gray-400"} />
+              <Icon size={16} className={isActive ? "text-[#922842]" : "text-gray-400"} />
               {item.label}
             </Link>
           );
         })}
       </nav>
 
-      <div className="mt-4 flex flex-col gap-1.5 border-t border-gray-200/60 pt-4">
+      <div className="mt-4 flex flex-col gap-1.5 border-t border-[#6B6B6B] pt-4">
         <Link
           href="/admin/settings"
           className={`flex items-center gap-3 rounded-2xl px-3.5 py-3 text-xs font-[family-name:var(--font-mono)] uppercase tracking-wider font-medium transition-all backdrop-blur-md ${
             pathname === "/admin/settings"
-              ? "border border-gray-200/80 bg-white/90 text-gray-900 shadow-sm"
+              ? "border border-[#922842]/30 bg-[#922842]/10 text-[#922842] shadow-sm font-semibold"
               : "border border-transparent text-gray-600 hover:bg-white/50 hover:text-gray-900"
           }`}
         >
-          <Settings size={16} className={pathname === "/admin/settings" ? "text-gray-900" : "text-gray-400"} />
+          <Settings size={16} className={pathname === "/admin/settings" ? "text-[#922842]" : "text-gray-400"} />
           Settings
         </Link>
         <button
