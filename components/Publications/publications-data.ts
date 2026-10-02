@@ -22,9 +22,24 @@
   },
   {
     id: "LNU-MN-2024-019",
-    title: "We Consume the World, Because we Arenâ€™t Satisfied with Our Own",
+    title: "We Consume the World, Because we Aren't Satisfied with Our Own",
     program: "MAN",
     author: "O. Dazai",
     year: "2026",
   },
+   {
+    id: "LNU-MN-2024-029",
+    title: "We Consume the World, Because we Aren't Satisfied with Our Own",
+    program: "MAN",
+    author: "O. Dazai",
+    year: "2026",
+  },
+   {
+    id: "LNU-MN-2024-049",
+    title: "We Consume the World, Because we Aren't Satisfied with Our Own",
+    program: "MAN",
+    author: "O. Dazai",
+    year: "2026",
+  },
+  
 ];

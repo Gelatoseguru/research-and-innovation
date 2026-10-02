@@ -9,7 +9,6 @@ import Goals from "@/components/Goals/Goals";
 import Publications from "@/components/Publications/publications";
 import Footer from "@/components/Footer/footer";
 import Preloader from "@/components/Load/Preloader";
-import Program from "@/components/Program/program";
 
 
 // ---- LNU palette (from palette.txt) -----------------------------------
@@ -20,7 +19,16 @@ import Program from "@/components/Program/program";
 // Dark Amaranth 2 #791B37  -> deep accent / dark sections
 
 export default function Home() {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(() => {
+    if (typeof window === "undefined") return true;
+
+    const shouldSkipPreloader = sessionStorage.getItem("skip-home-preloader") === "true";
+    if (shouldSkipPreloader) {
+      sessionStorage.removeItem("skip-home-preloader");
+    }
+
+    return !shouldSkipPreloader;
+  });
 
   // Prevent scrolling while the preloader is running
   useEffect(() => {
@@ -41,6 +49,7 @@ export default function Home() {
         <Navbar />
         <Hero />
         <About />
+        <Goals />
         <Publications />
         <Footer />
 
